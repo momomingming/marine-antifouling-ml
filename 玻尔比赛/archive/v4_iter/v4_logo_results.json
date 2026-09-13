@@ -1,0 +1,22 @@
+{
+  "antifouling_efficiency_pct": {
+    "mean_r2": -7.7007140515569015,
+    "std_r2": 16.382908918173104,
+    "n_groups": 8
+  },
+  "fouling_release_pct": {
+    "mean_r2": -6.778033043037,
+    "std_r2": 8.980176307403655,
+    "n_groups": 8
+  },
+  "antibacterial_rate_pct": {
+    "mean_r2": -3.779183500882807,
+    "std_r2": 8.62296131184474,
+    "n_groups": 8
+  },
+  "diatom_removal_pct": {
+    "mean_r2": -7.0401015108196985,
+    "std_r2": 13.494896201229132,
+    "n_groups": 8
+  }
+}

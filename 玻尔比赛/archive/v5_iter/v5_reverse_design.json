@@ -1,0 +1,28 @@
+{
+  "design_goals": {
+    "防污效率": 90.0,
+    "污损释放率": 85.0,
+    "抗菌率": 80.0,
+    "硅藻去除率": 85.0
+  },
+  "optimal_predictions": {
+    "防污效率": 90.78,
+    "污损释放率": 88.61,
+    "抗菌率": 87.89,
+    "硅藻去除率": 90.36
+  },
+  "goals_met": {
+    "防污效率": 1,
+    "污损释放率": 1,
+    "抗菌率": 1,
+    "硅藻去除率": 1
+  },
+  "nearest_training_material": {
+    "material_name": "SLIPS-PDMS+PEG600(增强)",
+    "material_class": "smart",
+    "SMILES": "C[Si](C)(C)O[Si](C)(C)C.OCCOCCOCCOCCOCCO",
+    "distance": 226.225
+  },
+  "optuna_best_score": 113.97,
+  "optuna_n_trials": 150
+}
