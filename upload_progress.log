@@ -1,0 +1,47 @@
+[22:55:35] total 391 pdfs, 391 pending, 0 already tracked
+[22:55:35] 20 batches planned
+[22:55:41] batch 1: PUSH OK (attempt 1)
+[22:57:01] total 391 pdfs, 391 pending, 0 already tracked
+[22:57:01] 19 batches planned
+[22:59:41] batch 1: PUSH OK (attempt 1)
+[23:00:19] batch 2: PUSH OK (attempt 1)
+[23:02:09] batch 3: PUSH OK (attempt 1)
+[23:02:52] batch 4: PUSH OK (attempt 1)
+[23:04:32] batch 5: PUSH OK (attempt 1)
+[23:07:39] batch 6: PUSH OK (attempt 1)
+[23:10:24] batch 7: PUSH OK (attempt 1)
+[23:11:31] batch 8: attempt 1 failed: Everything up-to-date
+[23:12:02] batch 8: attempt 2 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:12:33] batch 8: attempt 3 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:12:59] batch 8: attempt 4 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': Empt
+[23:13:29] batch 8: attempt 5 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:14:00] batch 8: attempt 6 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:14:31] batch 8: attempt 7 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:15:02] batch 8: attempt 8 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:15:33] batch 8: attempt 9 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:16:04] batch 8: attempt 10 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:16:24] batch 8: GAVE UP after 10 attempts
+[23:16:24] DONE. failed batches: [8]
+[23:18:00] total 391 pdfs, 250 pending, 141 already tracked
+[23:18:00] 12 batches planned
+[23:19:14] batch 1: PUSH OK (attempt 1)
+[23:20:21] batch 2: PUSH OK (attempt 1)
+[23:21:05] batch 3: PUSH OK (attempt 1)
+[23:21:53] batch 4: PUSH OK (attempt 1)
+[23:22:59] batch 5: PUSH OK (attempt 1)
+[23:24:16] batch 6: PUSH OK (attempt 1)
+[23:25:14] batch 7: PUSH OK (attempt 1)
+[23:26:00] batch 8: PUSH OK (attempt 1)
+[23:26:58] batch 9: attempt 1 failed: Everything up-to-date
+[23:27:28] batch 9: attempt 2 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:27:59] batch 9: attempt 3 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:28:30] batch 9: attempt 4 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:29:00] batch 9: attempt 5 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:29:31] batch 9: attempt 6 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:30:02] batch 9: attempt 7 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:31:19] batch 9: PUSH OK (attempt 8)
+[23:32:00] batch 10: PUSH OK (attempt 1)
+[23:32:14] batch 11: attempt 1 failed: fatal: unable to access 'https://github.com/momomingming/marine-antifouling-ml.git/': CONN
+[23:33:17] batch 11: PUSH OK (attempt 2)
+[23:33:59] batch 12: PUSH OK (attempt 1)
+[23:33:59] DONE. failed batches: none

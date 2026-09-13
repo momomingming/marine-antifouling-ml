@@ -467,7 +467,9 @@ v7 的三项改进：特征工程 28 → 46 维、Optuna 贝叶斯超参优化�
 
 ## 文献数据库
 
-`literature_database_300.csv`（197 KB）：**305 篇**海洋防污领域文献。
+`hf_space/literature_db.csv`（456 KB）：**639 篇**海洋防污领域文献 = 原库 305 篇 + 新增 334 篇（2026-09 PDF 文集，`pdfs/` 目录 391 个 PDF 全文，57 篇 DOI 重复已去重）。程序 `load_literature_db()` 直接加载本文件。
+
+> 保留 `literature_database_300.csv`（原 305 篇）作为历史存档；391 篇 PDF 的逐文件元数据对照表见 `data/literature_pdfs_enriched.csv`（含 Crossref 补全的作者/期刊/引用数）。
 
 | 字段 | 说明 |
 |---|---|
@@ -491,7 +493,7 @@ v7 的三项改进：特征工程 28 → 46 维、Optuna 贝叶斯超参优化�
 | 2010s | 95 |
 | 2020s | 225 |
 
-> 文献库高度集中于近十年（2016–2026），符合海洋防污材料研究近年的爆发态势；早期经典文献覆盖较少。
+> 文献库高度集中于近十年（2016–2026），符合海洋防污材料研究近年的爆发态势；早期经典文献覆盖较少。新增 334 篇集中于 2019–2026，进一步充实近年前沿。
 
 ### 主要文献来源
 
@@ -548,7 +550,17 @@ from synthesis_routes import (
 
 ## 项目结构
 
-压缩包共 **90 个文件**，解压后 **51.44 MB**（压缩后 23.29 MB）。
+仓库在原压缩包（90 个文件）基础上补充了两块内容：
+
+```
+marine-antifouling-ml/
+├── 📄 pdfs/                          # 391 篇海洋防污文献 PDF 全文（约 2.1 GB）
+└── 📊 data/
+    ├── literature_pdfs.csv           # PDF 元数据（本地提取：标题/DOI/年份/页数/大小）
+    └── literature_pdfs_enriched.csv  # Crossref 增强版（作者/期刊/引用数）
+```
+
+以下为原压缩包结构（共 **90 个文件**，解压后 **51.44 MB**）：
 
 ```
 玻尔比赛/
@@ -587,7 +599,8 @@ from synthesis_routes import (
 │   ├── app.py                        # Gradio 交互平台（1870 行，9 个标签页）
 │   ├── synthesis_routes.py           # 合成路线库（2451 行，41 条路线）
 │   ├── model.pkl                     # 部署用精简模型（14.01 MB）
-│   ├── literature_database_300.csv   # 文献库（305 篇）
+│   ├── literature_db.csv             # 合并文献库（639 篇，程序加载入口）
+│   ├── literature_database_300.csv   # 原文献库（305 篇，历史存档）
 │   ├── requirements.txt              # Python 依赖
 │   └── README.md                     # HF Space 部署说明
 │
@@ -654,27 +667,11 @@ from synthesis_routes import (
 
 ## 已知问题
 
-### 1. 文献数据库标签页无法加载 ⚠️
+### 1. 文献数据库标签页无法加载 ✅ 已解决
 
-`hf_space/app.py` 中 `load_literature_db()`（L1273、L1280）查找的文件名为：
+原压缩包中 `load_literature_db()` 查找 `literature_db.csv`，而实际文件名为 `literature_database_300.csv`，导致「📚 文献数据库」标签页静默返回空表。
 
-```python
-pkl_path = os.path.join(..., 'literature_db.pkl')
-csv_path = os.path.join(..., 'literature_db.csv')
-```
-
-而压缩包内实际文件名为 `literature_database_300.csv`。**两者不匹配**，导致函数走到 `return pd.DataFrame()`，「📚 文献数据库」标签页静默返回空表，不报错。
-
-**修复方式**（任选其一）：
-
-```bash
-# 方式 A：重命名文件
-cd 玻尔比赛/hf_space/
-mv literature_database_300.csv literature_db.csv
-
-# 方式 B：改源码 L1280
-#   'literature_db.csv'  →  'literature_database_300.csv'
-```
+**2026-09-13 修复**：已向 `hf_space/` 添加合并库 `literature_db.csv`（639 篇），程序无需改代码即可加载。顺带修复了 `search_literature()` 在 pandas ≥ 3.0 下的静默失效（`dtype == object` 判断在 pandas 3 的 `str` 列上恒为 False，已改用 `is_object_dtype / is_string_dtype`）。
 
 ### 2. 旧版 README 性能数字虚高
 
