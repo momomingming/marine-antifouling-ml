@@ -816,31 +816,21 @@ def get_material_db():
     return _MATERIAL_DB
 
 
+from search_engine import get_searcher, MaterialSearcher
+
+
 def search_materials(query, max_results=20):
-    """模糊搜索材料，返回匹配的下拉选项列表"""
     db = get_material_db()
-    if not query or not query.strip():
-        results = []
-        for m in db:
-            if 'alias_of' not in m:
-                smi_short = m['smiles'][:35] + ('...' if len(m['smiles']) > 35 else '')
-                results.append(f"{m['name']} | {smi_short}")
-            if len(results) >= max_results:
-                break
-        return results
-    q = query.strip().lower()
-    results = []
-    for m in db:
-        if m['name'].lower().startswith(q):
-            alias_note = f" (即 {m['alias_of']})" if m.get('alias_of') else ""
-            smi_short = m['smiles'][:35] + ('...' if len(m['smiles']) > 35 else '')
-            results.append(f"{m['name']}{alias_note} | {smi_short}")
-    for m in db:
-        if q in m['name'].lower() and not m['name'].lower().startswith(q):
-            alias_note = f" (即 {m['alias_of']})" if m.get('alias_of') else ""
-            smi_short = m['smiles'][:35] + ('...' if len(m['smiles']) > 35 else '')
-            results.append(f"{m['name']}{alias_note} | {smi_short}")
-    return results[:max_results]
+    searcher = get_searcher(db)
+    results = searcher.search(query, max_results=max_results)
+    return [searcher.to_choice(r) for r in results]
+
+
+def search_results_md_handler(query):
+    db = get_material_db()
+    searcher = get_searcher(db)
+    results = searcher.search(query, max_results=20)
+    return searcher.format_results_md(results, query)
 
 
 def resolve_input(user_input):
@@ -1637,6 +1627,8 @@ def create_platform():
                 # 绑定事件
                 search_box.input(fn=search_materials, inputs=[search_box], outputs=[search_box])
                 add_btn.click(fn=add_to_input, inputs=[search_box, smiles_input], outputs=[smiles_input])
+                search_results_md = gr.Markdown("输入物质名称 / 别名 / SMILES / 类别，结果按相关度排序展示。")
+                search_box.input(fn=search_results_md_handler, inputs=[search_box], outputs=[search_results_md])
 
                 predict_btn.click(
                     fn=on_predict_custom,
