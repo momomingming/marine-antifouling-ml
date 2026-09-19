@@ -59,7 +59,12 @@ from rdkit.Chem import MACCSkeys
 import pickle
 
 np.random.seed(42)
-OUTPUT_DIR = '/share/玻尔比赛'
+
+# 输出目录: 默认指向仓库内 models/results，可用环境变量 MA_OUTPUT_DIR 覆盖
+# (原写死 /share/玻尔比赛，Windows 本地无法运行，已修正为跨平台可移植)
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUTPUT_DIR = os.environ.get('MA_OUTPUT_DIR', os.path.join(_PROJECT_ROOT, 'models', 'results'))
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ============================================================
 # PART 1: 分子描述符计算引擎

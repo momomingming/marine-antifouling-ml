@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 模型与大型二进制产物(从 Release 或训练生成，不入库)
+*.pkl
+*.ubj
+
+# 日志
+*.log
+upload_progress.log
+
+# 文献 PDF(体积大，单独管理，不入库)
+pdfs/
+
+# Gradio / HF Space 运行时缓存
+.gradio/
+
+# 部署备份
+*.bak
+*.bak_search
+deployments/deploy_job/gradio_server.log

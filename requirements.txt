@@ -1,0 +1,12 @@
+# 海洋防污材料分子结构→可行性预测平台 — Python 依赖清单
+# 安装: pip install -r requirements.txt  (推荐 Python 3.11)
+# 注意: rdkit 通常需通过 conda 安装 (conda install -c conda-forge rdkit)，
+#       纯 pip 环境可能装不上；其余包均可 pip 安装。
+numpy
+pandas
+matplotlib
+scikit-learn
+xgboost>=3.0
+lightgbm
+rdkit
+gradio

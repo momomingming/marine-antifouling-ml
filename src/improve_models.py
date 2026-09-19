@@ -19,7 +19,13 @@ import xgboost as xgb
 import lightgbm as lgb
 
 np.random.seed(42)
-OUT = '/share/玻尔比赛'
+
+# 输出目录: 默认 models/results；训练集读取 data/raw。可用 MA_OUTPUT_DIR 覆盖
+# (原写死 /share/玻尔比赛，Windows 本地无法运行，已修正为跨平台可移植)
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.environ.get('MA_OUTPUT_DIR', os.path.join(_PROJECT_ROOT, 'models', 'results'))
+os.makedirs(OUT, exist_ok=True)
+DATA_DIR = os.path.join(_PROJECT_ROOT, 'data', 'raw')
 t0 = time.time()
 
 BASE = ['MW','LogP','TPSA','HBD','HBA','RotBonds','RingCount','AromaticRings',
@@ -58,7 +64,7 @@ print("="*60)
 print("  v7模型提升 (极简快速版)")
 print("="*60)
 
-df = pd.read_csv(f'{OUT}/dataset.csv')
+df = pd.read_csv(os.path.join(DATA_DIR, 'dataset.csv'))
 df, fcols = add_feat(df)
 for c in fcols:
     if c not in df.columns: df[c] = 0

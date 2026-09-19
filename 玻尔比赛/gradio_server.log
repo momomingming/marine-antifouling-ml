@@ -1,8 +1,0 @@
-正在初始化平台 v6.0 ...
-模型加载完成，耗时 2.3s
-模型加载耗时: 2.3s
-预计算238个材料耗时: 5.0s
-* Running on local URL:  http://0.0.0.0:8080
-* Running on public URL: https://c3aa9bb67b2532426c.gradio.live
-
-This share link is temporary and will last for up to 1 week (best effort). For free permanent hosting and GPU upgrades, run `gradio deploy` from the terminal in the working directory to deploy to Hugging Face Spaces (https://huggingface.co/spaces)
