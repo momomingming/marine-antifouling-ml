@@ -467,9 +467,21 @@ v7 的三项改进：特征工程 28 → 46 维、Optuna 贝叶斯超参优化�
 
 ## 文献数据库
 
-`hf_space/literature_db.csv`（456 KB）：**639 篇**海洋防污领域文献 = 原库 305 篇 + 新增 334 篇（2026-09 PDF 文集，`pdfs/` 目录 391 个 PDF 全文，57 篇 DOI 重复已去重）。程序 `load_literature_db()` 直接加载本文件。
+`data/literature/literature_unified.csv` 是**唯一事实源**（21 列，**664 条**）；
+应用端读取的是由 `experiments/export_literature_db.py` 导出的精简库 `literature_db.csv`（11 列，577 KB），
+`load_literature_db()` 直接加载后者，UI 中的条目数由 `lit_count()` 动态读取。
 
-> 保留 `literature_database_300.csv`（原 305 篇）作为历史存档；391 篇 PDF 的逐文件元数据对照表见 `data/literature_pdfs_enriched.csv`（含 Crossref 补全的作者/期刊/引用数）。
+**664 篇** = 原库 305 篇 + 2026-09 PDF 文集 334 篇（`pdfs/` 目录 391 个 PDF 全文，57 篇 DOI 重复已去重）
++ 2026-09-23 CrossRef 回填新增 5 篇。
+
+> **2026-09-23 CrossRef 元数据回填（任务③）**：非空 abstract 由 532 → **578** 条，补 url 14 条。
+> 脚本 `experiments/fetch_crossref_metadata.py` 支持断点续跑（进度落 `data/literature/.crossref_progress.json`）
+> 与自动备份；9 条源记录因 PDF 提取出的 DOI 畸形（尾部截断、误用 U+2212 减号、附 `/-/DCSupplemental` 后缀）
+> 无法精确匹配，其中 **4 条**经标题检索 + 相似度门禁（≥0.70）补回，**5 条**页眉脏标题
+> （如 `Vol.:(0123456789)1 3`、`Downloaded from www.annualreviews.org.`）因疑似误匹配被**主动跳过**——
+> 宁可留空也不污染库。
+
+> 保留 `literature_database_300.csv`（原 305 篇）作为历史存档；391 篇 PDF 的逐文件元数据对照表见 `data/literature_pdfs_enriched.csv`。
 
 | 字段 | 说明 |
 |---|---|
