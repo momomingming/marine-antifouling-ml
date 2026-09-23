@@ -154,7 +154,7 @@ Gradio 界面共 **9 个标签页**：
 | 5 | 🔍 查询合成路线 | 按材料名查询具体制备工艺、试剂配比与反应条件 |
 | 6 | 📋 浏览全部路线 | 列出全部 **41 条**已注册合成路线 |
 | 7 | 📊 数据库总览 | 合成路线库的类别分布统计 |
-| 8 | 📚 文献数据库 | 305 篇海洋防污文献检索 ⚠️ [见已知问题](#已知问题) |
+| 8 | 📚 文献数据库 | 659 篇海洋防污文献检索（条目数由 `lit_count()` 动态显示） |
 | 9 | ℹ️ 关于 | 平台信息与方法说明 |
 
 ### 材料特性参数卡片（10 项）
@@ -673,17 +673,36 @@ marine-antifouling-ml/
 
 **2026-09-13 修复**：已向 `hf_space/` 添加合并库 `literature_db.csv`（639 篇），程序无需改代码即可加载。顺带修复了 `search_literature()` 在 pandas ≥ 3.0 下的静默失效（`dtype == object` 判断在 pandas 3 的 `str` 列上恒为 False，已改用 `is_object_dtype / is_string_dtype`）。
 
-### 2. 旧版 README 性能数字虚高
+### 2. 旧版 README 性能数字虚高 ✅ 已全库清理
 
-`玻尔比赛/README.md` 中的 R² = 0.973–0.994 来自训练集内部 CV，非盲测结果。详见[模型与真实性能](#模型与真实性能)。**本文档（仓库首页 README）为准确版本。**
+`玻尔比赛/README.md` 中的 R² = 0.973–0.994 来自**含信息泄漏的分层随机切分**（同一分子的增强变体同时落入训练/盲测集），非诚实结果。详见[模型与真实性能](#模型与真实性能)。
+
+**2026-09-23 清理**：除首页 README 早已更正外，又排查并修正了其余仍在沿用旧口径的文件——
+`docs/competition_readme.md`（对外参赛文档，性能表已换为 LOGO 池化折外 R² 并补口径更正块）、
+`docs/methodology.md`、`docs/FAQ_问题回答.md`、`docs/v7_提升报告.md`（后三者加"仅可作同协议相对比较、不可对外宣称"声明）、
+`hf_space/README.md`（原仍写着 Blind Test R² 0.973）。
+`experiments/archive/**` 为历史归档，保留原样不改动。
 
 ### 3. 在线演示地址已失效
 
 旧 README 中的 `*.bohr-sandbox.bohrium.com` 是玻尔比赛沙箱的临时地址，依赖赛事环境，现已不可访问。请通过[快速开始](#快速开始)在本地运行，或自行部署到 Hugging Face Spaces（`hf_space/` 目录已是标准 HF Space 结构）。
 
-### 4. 压缩包内存在冗余副本
+### 5. 双部署副本 UI 漂移 ✅ 已同步
 
-`literature_database_300.csv`（197 KB）在 `deploy_job/`、`hf_space/`、`archive/misc/` 中各存一份；`synthesis_routes.py`、`model.pkl`、`v5_williams_all.png` 同样重复。这是两套部署包（沙箱 / HF Space）并存导致的，约占压缩包体积的 30%。
+P0 不确定性 / 适用域模块复制到 `hf_space/` 时只带了 `uncertainty.py`、`domain_applicability.py`，
+`app.py` 的 UI 改动**未同步**，导致两端展示不一致；`hf_space` 顶栏仍显示旧的「盲测R² > 0.97」。
+
+**2026-09-23 修复**：
+- 两端 `app.py` 已对齐——预测结果附「预测可信度」块、顶栏与关于页换为 LOGO 池化折外口径；
+- 文献条目数改为 `lit_count()` **动态读取**（原两处硬编码「305 篇」已清除）；
+- 新增 `experiments/export_literature_db.py`：把唯一事实源 `data/literature/literature_unified.csv`
+  一键导出为两个部署副本的 `literature_db.csv`，从流程上消除手工复制的漂移。
+
+### 6. 双副本模块存在重复维护成本
+
+`uncertainty.py` / `domain_applicability.py` / `app.py` 在 `src/`（或根）、`deployments/deploy_job/`、
+`deployments/hf_space/` 中各有副本，靠人工保持一致。当前处理方式是"改一处 → 三副本同步 + `md5sum` 校验"，
+长期看建议抽成单一源 + 导出脚本（与 `export_literature_db.py` 同思路）。
 
 ---
 

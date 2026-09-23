@@ -72,7 +72,20 @@ deployments/deploy_job/
 | `experiments/test_p0_smoke.py` | ✅ | 4 项冒烟全通过 |
 | `experiments/verify_cv_protocol.py` | ✅ | 口径核查，纠正 -0.594 伪影 |
 | `deployments/deploy_job/app.py` | ✅ | 预测结果附「可信度块」；下线盲测R² 0.97 等误导展示 |
-| `deployments/hf_space/app.py` | 🟡 | 模块已复制，**UI 未同步改动**（待做，避免双份漂移） |
+| `deployments/hf_space/app.py` | ✅ | **UI 已同步**（可信度块 + 口径更正文案 + 关于页指标表），README 同步修正 |
+
+### hf_space 同步记录（2026-09-23）
+- 移植 `_UNCERTAINTY_ENGINE` / `_get_uncertainty_engine` / `uncertainty_md` 三个模块级定义；
+- 预测回调三处分支（`名称 \| SMILES`、复合材料、材料库匹配）均接入 `unc_parts`，
+  输出时以 `---` 分隔追加「预测可信度」块；
+- 顶栏标语 `盲测R² > 0.97` → `LOGO折外R² 0.59`；关于页指标表改为池化折外 R²=0.592 / MAE=4.46，
+  并附口径更正说明块（与 deploy_job 完全一致，消除双份漂移）；
+- `hf_space/README.md` 原仍写着「Blind Test R² 0.973」，已一并改为诚实口径；
+- 验证方式：AST 从 `hf_space/app.py` 抽取真实函数源码 + 模块级变量，在 hf_space 目录
+  布局下执行并预测 PDMS → `76.13 / 95%CI [64.79, 87.47] / 等级中 / ✅在域内(3.038/7.213)`，
+  另测缺字段、空 dict、None 三种退化输入均返回空串不抛异常。
+- 已知部署约束：HF Space 若以本目录为仓库根，需把 `models/logo_ensemble/` 放到根目录
+  （解析候选路径 `./models/logo_ensemble`）；不带也不会崩，仅降级为单点预测。
 
 ### 实现中发现并修复的两个 bug
 1. **标准化误用**：折外模型在原始特征上训练，推理端却先 `StandardScaler` 再预测 → 预测失真。

@@ -1326,6 +1326,15 @@ def load_literature_db():
     return pd.DataFrame()
 
 
+def lit_count():
+    """文献库条目数（供 UI 文案动态显示，避免硬编码过期）。"""
+    try:
+        df = load_literature_db()
+        return len(df) if df is not None and not df.empty else 0
+    except Exception:
+        return 0
+
+
 def search_literature(query, max_results=20):
     df = load_literature_db()
     if df.empty:
@@ -1832,7 +1841,7 @@ def create_platform():
 
             # ====== Tab 5: 文献数据库 ======
             with gr.Tab("📚 文献数据库"):
-                gr.Markdown("### 检索305篇海洋防污文献")
+                gr.Markdown(f"### 检索{lit_count()}篇海洋防污文献")
                 with gr.Row():
                     lit_query = gr.Textbox(label="搜索关键词", placeholder="PDMS, antifouling, zwitterionic...", scale=3)
                     lit_max = gr.Slider(5, 50, 20, 5, label="最大返回数", scale=1)
@@ -1887,7 +1896,7 @@ def create_platform():
                 2. **材料筛选器**：按防污性能阈值筛选238种已知材料
                 3. **批量对比**：多材料性能横向对比
                 4. **合成制备路线**：查看41种材料的完整合成方案（试剂、条件、步骤、文献出处）
-                5. **文献数据库**：检索305篇海洋防污文献
+                5. **文献数据库**：检索海洋防污文献库（元数据 + 摘要 + 被引数）
                 
                 #### 📖 输入格式速查
                 

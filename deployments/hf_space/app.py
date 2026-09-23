@@ -1072,6 +1072,59 @@ def predict_composite(input_text):
 
 
 
+# ============================================================
+# P0: 不确定性量化 + 域适用性
+# 可选能力 —— 折外集成模型缺失/加载失败时自动降级返回空, 绝不打断原有预测流程。
+# ============================================================
+
+_UNCERTAINTY_ENGINE = None
+
+
+def _get_uncertainty_engine():
+    """惰性加载 LOGO 折外集成; 不可用时返回 None。"""
+    global _UNCERTAINTY_ENGINE
+    if _UNCERTAINTY_ENGINE is None:
+        try:
+            import uncertainty as _u
+            eng = _u.LOGOEnsemble()
+            eng.load()
+            _UNCERTAINTY_ENGINE = eng if eng.available else False
+        except Exception:
+            _UNCERTAINTY_ENGINE = False
+    return _UNCERTAINTY_ENGINE or None
+
+
+def uncertainty_md(desc):
+    """
+    给定描述符字典(28维基础 或 42维含交互), 返回不确定性/适用域 Markdown 块。
+    不可用时返回空字符串。
+    """
+    eng = _get_uncertainty_engine()
+    if eng is None or not desc:
+        return ""
+    try:
+        res = eng.predict(desc)
+    except Exception:
+        return ""
+    if not res.get("available"):
+        return ""
+
+    lines = [
+        f"\n**预测可信度** (LOGO 折外集成 · {res['n_models']} 个模型)",
+        f"- 点预测 **{res['prediction']}**, 95% 置信区间 "
+        f"**[{res['ci_low']}, {res['ci_high']}]** (宽度 {res['ci_width']}, 口径: {res['ci_basis']})",
+        f"- 不确定度等级: **{res['uncertainty_level']}**",
+    ]
+    if res.get("in_domain") is False:
+        lines.append(
+            f"- ⚠️ **超出适用域**: 马氏距离 {res.get('distance')} > 阈值 {res.get('threshold')}"
+            " — 该分子与训练集差异过大, 结果仅供参考")
+    else:
+        lines.append(
+            f"- 适用域: ✅ 在训练特征空间内 (马氏距离 {res.get('distance')} / 阈值 {res.get('threshold')})")
+    return "\n".join(lines)
+
+
 def compute_material_properties(desc):
     """从分子描述符计算重要材料特性，返回 (值, 置信度, 单位) 元组"""
     props = {}
@@ -1283,6 +1336,15 @@ def load_literature_db():
     return pd.DataFrame()
 
 
+def lit_count():
+    """文献库条目数（供 UI 文案动态显示，避免硬编码过期）。"""
+    try:
+        df = load_literature_db()
+        return len(df) if df is not None and not df.empty else 0
+    except Exception:
+        return 0
+
+
 def search_literature(query, max_results=20):
     df = load_literature_db()
     if df.empty:
@@ -1345,6 +1407,7 @@ def create_platform():
         errors = []
         all_props = {}
         parsed_info_parts = []
+        unc_parts = []   # P0: 不确定性/适用域 说明块
 
         for line in lines:
             # 支持 "名称 | SMILES" 格式（仍兼容旧输入方式）
@@ -1363,6 +1426,9 @@ def create_platform():
                 results_list.append(r)
                 if desc:
                     all_props[name_hint or smi] = compute_material_properties(desc)
+                    _um = uncertainty_md(desc)
+                    if _um:
+                        unc_parts.append(f"**{name_hint or smi}**{_um}")
                 parsed_info_parts.append(f"**{name_hint}**: 直接SMILES输入\n- SMILES: `{smi}`")
                 continue
 
@@ -1397,6 +1463,9 @@ def create_platform():
                 results_list.append(result)
                 if full_desc:
                     all_props[name] = compute_material_properties(full_desc)
+                    _um = uncertainty_md(full_desc)
+                    if _um:
+                        unc_parts.append(f"**{name}**{_um}")
                 parsed_info_parts.append(format_parsed_info(parsed))
                 continue
 
@@ -1412,6 +1481,9 @@ def create_platform():
                     desc = compute_descriptors(smi)
                     if desc:
                         all_props[resolved_name or line] = compute_material_properties(desc)
+                        _um = uncertainty_md(desc)
+                        if _um:
+                            unc_parts.append(f"**{resolved_name or line}**{_um}")
                     parsed_info_parts.append(
                         f"**{resolved_name or line}**: 材料数据库匹配\n- SMILES: `{smi}`")
                     continue
@@ -1426,6 +1498,8 @@ def create_platform():
         msg_parts = [f"✅ 成功预测 **{len(df)}** 个材料"]
         if errors:
             msg_parts.append('\n' + '\n'.join(errors))
+        if unc_parts:
+            msg_parts.append('\n---\n' + '\n\n'.join(unc_parts))
         msg = '\n'.join(msg_parts)
 
         if len(df) == 1:
@@ -1565,7 +1639,7 @@ def create_platform():
         gr.Markdown("""
         # 🌊 海洋防污材料ML预测平台 v6.0
         
-        **智能材料解析器** | **6种输入格式** | **复合材料预测** | **42维分子描述符** | **盲测R² > 0.97** | **合成制备路线**
+        **智能材料解析器** | **6种输入格式** | **复合材料预测** | **42维分子描述符** | **LOGO折外R² 0.59** | **合成制备路线**
         
         基于238个原始材料 + 4762个增强样本训练的Optuna-XGBoost集成模型。v6.0新增 **智能材料解析器**，
         支持纯小分子、均聚物、共聚物、纳米复合材料、多层涂层和天然材料6种输入格式。
@@ -1775,7 +1849,7 @@ def create_platform():
 
             # ====== Tab 5: 文献数据库 ======
             with gr.Tab("📚 文献数据库"):
-                gr.Markdown("### 检索305篇海洋防污文献")
+                gr.Markdown(f"### 检索{lit_count()}篇海洋防污文献")
                 with gr.Row():
                     lit_query = gr.Textbox(label="搜索关键词", placeholder="PDMS, antifouling, zwitterionic...", scale=3)
                     lit_max = gr.Slider(5, 50, 20, 5, label="最大返回数", scale=1)
@@ -1811,14 +1885,18 @@ def create_platform():
                 | 合成路线 | 8大类 41种材料，附文献DOI |
                 | 新功能 | 🆕 智能材料解析器 + 复合材料预测（v6.0） |
                 
-                #### 📈 盲测R²
+                #### 📈 模型验证指标（已按诚实口径修正）
                 
-                | 性能指标 | R² |
-                |---------|-----|
-                | 防污效率 | 0.973 |
-                | 脱附率 | 0.979 |
-                | 抗菌率 | 0.994 |
-                | 硅藻去除率 | 0.977 |
+                | 性能指标 | 池化折外 R² | MAE |
+                |---------|-----------|-----|
+                | 防污效率 | **0.592** | **4.46** |
+                
+                > ⚠️ **口径更正**：早期展示的「盲测 R² 0.97」来自**含信息泄漏**的随机切分验证
+                > （同一分子的增强变体同时落在训练/测试集），已下线。
+                > 现采用 **Leave-One-Group-Out by SMILES**（84 个分子分组，同分子变体不跨集）
+                > + 池化折外 R²；随机切分相比虚高约 0.11（0.704 → 0.592）。
+                > 主要瓶颈：**真实独立分子仅 84 个**，58% 为增强样本。
+                > 因此每次预测均同时给出 **95% 置信区间** 与 **适用域判定**，请勿仅看点预测值。
                 
                 #### 🔬 使用方法
                 
@@ -1826,7 +1904,7 @@ def create_platform():
                 2. **材料筛选器**：按防污性能阈值筛选238种已知材料
                 3. **批量对比**：多材料性能横向对比
                 4. **合成制备路线**：查看41种材料的完整合成方案（试剂、条件、步骤、文献出处）
-                5. **文献数据库**：检索305篇海洋防污文献
+                5. **文献数据库**：检索海洋防污文献库（元数据 + 摘要 + 被引数）
                 
                 #### 📖 输入格式速查
                 

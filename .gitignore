@@ -21,3 +21,8 @@ pdfs/
 *.bak
 *.bak_search
 deployments/deploy_job/gradio_server.log
+
+# CrossRef 回填的运行期产物（进度 / 自动备份 / 临时文件）
+data/literature/.crossref_progress.json
+data/literature/literature_unified.bak-*.csv
+data/literature/*.tmp
