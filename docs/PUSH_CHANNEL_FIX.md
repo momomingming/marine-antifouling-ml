@@ -9,6 +9,17 @@
 
 ## 零、最终可用配置（照抄即可，别再排查）
 
+### 推荐：直接用封装脚本 `~/maf-push.sh`（已建好）
+
+```bash
+sh ~/maf-push.sh D:/锂硫电池/marine-antifouling-ml        # 推 main
+sh ~/maf-push.sh D:/锂硫电池/marine-antifouling-ml dev    # 推指定分支
+```
+
+它内部做的是三件事：走 gh-proxy.com 通道 → 用 keyring token → **排除会弹窗的 GCM**。
+
+### 等价的手工版本
+
 ```bash
 # 1) 镜像 host 的凭据桥接脚本 ~/.git-cred-mirror.sh
 #    作用: 从 gh keyring 取真 token, 改写成镜像 host 返回
